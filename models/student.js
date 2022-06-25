@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
       Student.belongsTo(models.Group, {
         foreignKey: 'groupId',
       });
+      Student.belongsToMany(models.Subject, {
+        through: models.StudentSubjects,
+        foreignKey: 'studentId',
+      });
     }
   }
 
