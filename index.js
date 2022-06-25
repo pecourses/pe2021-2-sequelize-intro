@@ -1,151 +1,68 @@
 const {
   Student,
+  Group,
   sequelize,
   Sequelize: { Op },
 } = require('./models');
-// const {Op} = require('sequelize');
-
-// sequelize
-//   .sync({ force: true })
-//   .then(() => console.log('Sync OK'))
-//   .catch(err => console.log('err', err));
 
 (async () => {
-  const student = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'test6@test.test',
-    birthday: '2020-08-15',
-    isMale: false,
-    activitiesCount: 2,
-  };
+  try {
+    // await sequelize.sync({ force: true });
+    // console.log('Sync OK');
+    // const group1 = { code: 'pe2021-1', enteredAt: '2021-03-21' };
+    // const createdGroup1 = await Group.create(group1);
+    // const group2 = { code: 'pe2021-2', enteredAt: '2021-11-21' };
+    // const createdGroup2 = await Group.create(group2);
+    // const student1 = {
+    //   firstName: 'John',
+    //   lastName: 'Doe',
+    //   email: 'test1@test.test',
+    //   birthday: '2020-08-15',
+    //   groupId: 1,
+    //   isMale: false,
+    //   activitiesCount: 2,
+    // };
+    // const student2 = {
+    //   firstName: 'John',
+    //   lastName: 'Doe',
+    //   email: 'test2@test.test',
+    //   birthday: '2020-08-15',
+    //   groupId: 2,
+    //   isMale: false,
+    //   activitiesCount: 2,
+    // };
+    // const createdStudent1 = await Student.create(student1);
+    // const createdStudent2 = await Student.create(student2);
 
-  // C - INSERT - create
-  /*
-  INSERT INTO "Students" ("id","firstName","lastName","email","birthday","isMale","activitiesCount","createdAt","updatedAt") 
-  VALUES (DEFAULT,$1,$2,$3,$4,$5,$6,$7,$8)
-  RETURNING "id","firstName","lastName","email","birthday","isMale","activitiesCount","createdAt","updatedAt";
-  */
+    // Association 1:n (group 1:n students)
+    // Magic methods - Lazy loading
+    const [group1] = await Group.findAll({ where: { id: 1 } });
+    const studsOfGroup1 = await group1.getStudents({ raw: true });
+    console.log('studsOfGroup1', studsOfGroup1);
 
-  const createdStudent = await Student.create(student);
-  console.log('createdStudent', createdStudent.get());
+    // получить группу по инстансу студента (id: 2)
+    const [student2] = await Student.findAll({ where: { id: 2 } });
+    const groupsOfStudent2 = await student2.getGroup({ raw: true });
+    console.log('groupsOfStudent2', groupsOfStudent2);
 
-  // R - SELECT - findAll
+    // Eager loading (include: JOIN)
+    const groupWithStudents = await Group.findAll({
+      raw: true,
+      where: { id: 1 },
+      include: Student,
+    });
+    console.log('groupWithStudents', groupWithStudents);
 
-  // const foundStudents = await Student.findAll({ raw: true });
-  // console.log('foundStudents', foundStudents);
+    // получить инфу о студенте + его группе
+    const studentWithGroup = await Student.findAll({
+      raw: true,
+      where: { id: 2 },
+      include: Group,
+    });
+    console.log('studentWithGroup', studentWithGroup);
 
-  // Пагинация + сортировка
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   limit: 2,
-  //   offset: 0,
-  //   order: [['id', 'DESC']],
-  // });
-  // console.log('foundStudents', foundStudents);
-
-  // Добавить данные в таблицу и получить вторую страницу при просмотре
-  // по 3 строки, упорядочить по дате рождения
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   limit: 3,
-  //   offset: 3,
-  //   order: [['birthday', 'DESC'],'firstName'],
-  // });
-  // console.log('foundStudents', foundStudents);
-
-  // Фильтрация
-  // =
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   where: { birthday: '2011-08-15' },
-  // });
-
-  // AND
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   where: { birthday: '2010-08-15', firstName: 'Kate' },
-  // });
-
-  // OR
-  // activitiesCount 5 or 3
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   where: { [Op.or]: [{ activitiesCount: 1 }, { activitiesCount: 3 }] },
-  // });
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   where: {
-  //     activitiesCount: {
-  //       [Op.or]: [1, 3],
-  //     },
-  //   },
-  // });
-
-  // Получить студентов, которые зовут не Kate
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   where: { firstName: { [Op.ne]: 'Kate' } },
-  // });
-
-  // Проекция
-  // какие вывести из имеющихся
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   attributes: ['firstName'],
-  // });
-
-  // какие не выводить
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   attributes: { exclude: ['createdAt', 'updatedAt'] },
-  // });
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   attributes: {
-  //     include: [[sequelize.fn('age', sequelize.col('birthday')), 'age']],
-  //   },
-  // });
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   attributes: {
-  //     include: [
-  //       [sequelize.literal('EXTRACT (YEAR FROM age(birthday))'), 'age'],
-  //     ],
-  //   },
-  // });
-
-  // Grouping
-
-  // const foundStudents = await Student.findAll({
-  //   raw: true,
-  //   attributes: ['activitiesCount', sequelize.fn('count', sequelize.col('id'))],
-  //   group: 'activitiesCount',
-  //   having: sequelize.literal('count(id)>1'),
-  // });
-
-  // console.log('foundStudents', foundStudents);
-
-  // U - UPDATE - update
-
-  // const [, [updatedStudent]] = await Student.update(
-  //   {
-  //     activitiesCount: 6,
-  //   },
-  //   {
-  //     where: { id: 15 },
-  //     returning: true,
-  //     raw: true,
-  //   }
-  // );
-  // console.log('updatedStudent', updatedStudent);
-
-  // D - DELETE - destroy
-  // const deletedStudentsCount = await Student.destroy({ where: { id: 15 } });
-  // console.log('deletedStudentsCount', deletedStudentsCount);
+    // Association m:n (subjects m:n students) - доп. таблица
+  } catch (err) {
+    console.log('err', err);
+  }
 })();
