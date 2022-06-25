@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
   class Group extends Model {
     static associate (models) {
       Group.hasMany(models.Student, {
+        foreignKey: {
+          name: 'groupId',
+          allowNull: false,
+        },
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE',
       });

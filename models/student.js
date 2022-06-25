@@ -4,7 +4,9 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Student extends Model {
     static associate (models) {
-      Student.belongsTo(models.Group);
+      Student.belongsTo(models.Group, {
+        foreignKey: 'groupId',
+      });
     }
   }
 
